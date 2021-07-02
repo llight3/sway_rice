@@ -1,0 +1,312 @@
+# vim: filetype=i3
+
+# This config file will use environmental variables such as $BROWSER and $TERMINAL.
+# You can set these variables in ~/.profile if you have it as below:
+#
+# export FILE="ranger"
+# export TERMINAL="st"
+
+# #---Basic Definitions---# #
+default_border pixel
+gaps inner 15
+gaps outer 15
+set $term $TERMINAL
+set $mod Mod4
+seat * hide_cursor 8000
+
+# # #---Dropdown Windows---# #
+set $dropcalc foot --app-id="drop_calc" calc
+set $dropterm foot --app-id="drop_term" tmux
+for_window [app_id="drop_calc"] floating enable, move to scratchpad
+for_window [app_id="drop_term"] floating enable, move to scratchpad
+for_window [app_id="goneovim"] floating enable, move to scratchpad
+for_window [app_id="pavucontrol"] move scratchpad, scratchpad show
+
+
+# fix ptolemy jank
+for_window [instance="ptolemy-vergil-VergilApplication"] border pixel 3
+
+
+#STOP/HIDE EVERYTHING:
+bindsym $mod+Shift+Delete    exec ponymix mute ; exec playerctl pause ; exec playerctl --all-players stop; workspace 0; exec $term -e htop ; exec $term -e $FILE
+
+set $freeze Distraction-free mode (super+shift+f to reactivate bindings)
+mode "$freeze" {
+    bindsym $mod+Shift+f mode "default"
+}
+
+
+# #---Basic Bindings---# #
+bindsym $mod+Return                 exec $term
+bindsym $mod+Shift+Return           exec foot
+bindsym $mod+space                  focus mode_toggle
+bindsym $mod+Shift+space            floating toggle
+bindsym $mod+Escape                 workspace prev
+bindsym $mod+Shift+Escape           exec prompt "Exit sway?" "i3-msg exit"
+
+# #---Letter Key Bindings---# #
+bindsym $mod+q                      kill
+bindsym $mod+Shift+q                exec kill -9 `swaymsg -t get_tree | jq '.. | select(.type?) | select(.focused==true).pid'`
+bindsym $mod+w                      exec $BROWSER
+bindsym $mod+Shift+w                layout toggle tabbed stacking split
+bindsym $mod+e                      exec $term -e neomutt; pkill -RTMIN+12 $STATUSBAR
+# bindsym $mod+Shift+e              exec tutorialvids
+bindsym $mod+r                      exec $term -e $FILE
+# bindsym $mod+Shift+r              exec winresize
+bindsym $mod+t                      split toggle
+bindsym $mod+Shift+t                gaps inner current set 15; gaps outer current set 15
+bindsym $mod+y                      border toggle
+bindsym $mod+Shift+y                resize grow width
+bindsym $mod+u                      exec swaymsg [app_id="drop_term"] scratchpad show || exec $dropterm, resize set 1800 1000
+bindsym $mod+Shift+u                resize shrink height
+bindsym $mod+i                      exec $term -e  htop
+bindsym $mod+Shift+i                resize grow height
+bindsym $mod+o                      sticky toggle
+bindsym $mod+Shift+o                resize shrink width
+bindsym $mod+p                      exec swaymsg [app_id="pavucontrol"] scratchpad show || exec pavucontrol , resize set 1800 1000
+# bindsym $mod+Shift+p              mode "$freeze" ;; exec --no-startup-id notify-send "Distraction-free mode activated." "Press Super+Shift+f to return."
+bindsym $mod+a                      [app_id="^((?!drop_....|goneovim|pavucontrol).)*$"]        scratchpad show
+bindsym $mod+Shift+a                move container to scratchpad
+bindsym $mod+s                      gaps inner current plus 5
+bindsym $mod+Shift+s                gaps inner current minus 5
+bindsym $mod+d                      exec wofi --show run
+bindsym $mod+Shift+d                gaps inner current set 0; gaps outer current set 0
+bindsym $mod+f                      fullscreen toggle
+bindsym $mod+Shift+f                fullscreen toggle global
+bindsym $mod+g                      workspace prev
+bindsym $mod+Shift+g                exec gimp; workspace $ws5
+bindsym $mod+h                      focus left
+bindsym $mod+Shift+h                move left 30
+bindsym $mod+Ctrl+h                 move workspace to output left
+bindsym $mod+j                      focus down
+bindsym $mod+Shift+j                move down 30
+bindsym $mod+Ctrl+j                 move workspace to output down
+bindsym $mod+k                      focus up
+bindsym $mod+Shift+k                move up 30
+bindsym $mod+Ctrl+k                 move workspace to output up
+bindsym $mod+l                      focus right
+bindsym $mod+Shift+l                move right 30
+bindsym $mod+Ctrl+l                 move workspace to output right
+bindsym $mod+z                      gaps outer current plus 5
+bindsym $mod+Shift+z                gaps outer current minus 5
+bindsym $mod+x                      exec swaylock -e -f -c 1d2021
+bindsym $mod+Shift+x                exec prompt "Shutdown computer?" "sudo -A shutdown -h now"
+bindsym $mod+c                      exec cabl
+bindsym $mod+Shift+c                exec vlc
+bindsym $mod+v                      exec emacsclient -nc
+bindsym $mod+Shift+v                exec swaymsg [app_id="goneovim"] scratchpad show || exec goneovim , resize set 1800 1000
+bindsym $mod+b                      bar mode toggle
+bindsym $mod+Shift+b                floating toggle; sticky toggle; exec hover left
+bindsym $mod+n                      exec $term -e newsboat
+bindsym $mod+Shift+n                floating toggle; sticky toggle; exec hover right
+bindsym $mod+m                      exec apple-music-electron
+bindsym $mod+Shift+m                exec amixer sset Master toggle && pkil -RTMIN+10 i3blocks
+
+
+bindsym $mod+dead_grave             exec wofiunicode
+bindsym $mod+Insert                 exec showclip
+bindsym $mod+Shift+BackSpace        exec prompt "Reboot computer?" "sudo -A reboot"
+bindsym $mod+equal                  exec swaymsg [app_id="drop_calc"] scratchpad show || exec $dropcalc, resize set 1800 1000
+
+# #---Workspace Bindings---# #
+bindsym $mod+Home                   workspace $ws1
+bindsym $mod+Shift+Home             move container to workspace $ws1
+bindsym $mod+End                    workspace $ws10
+bindsym $mod+Shift+End              move container to workspace $ws10
+bindsym $mod+Prior                  workspace prev
+bindsym $mod+Shift+Prior            move container to workspace prev
+bindsym $mod+Next                   workspace next
+bindsym $mod+Shift+Next             move container to workspace next
+bindsym $mod+Tab                    workspace back_and_forth
+bindsym $mod+XF86Back               workspace prev
+bindsym $mod+Shift+XF86Back         move container to workspace prev
+bindsym $mod+XF86Forward            workspace next
+bindsym $mod+Shift+XF86Forward      move container to workspace next
+bindsym $mod+semicolon              workspace next
+bindsym $mod+apostrophe             split horizontal ;; exec $term
+bindsym $mod+slash                  split vertical ;; exec $term
+bindsym $mod+Shift+slash            kill
+bindsym $mod+backslash              workspace back_and_forth
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+# switch to workspace
+bindsym $mod+1          workspace $ws1
+bindsym $mod+2          workspace $ws2
+bindsym $mod+3          workspace $ws3
+bindsym $mod+4          workspace $ws4
+bindsym $mod+5          workspace $ws5
+bindsym $mod+6          workspace $ws6
+bindsym $mod+7          workspace $ws7
+bindsym $mod+8          workspace $ws8
+bindsym $mod+9          workspace $ws9
+bindsym $mod+0          workspace $ws10
+
+# move focused container to workspace
+bindsym $mod+Shift+1    move container to workspace $ws1
+bindsym $mod+Shift+2    move container to workspace $ws2
+bindsym $mod+Shift+3    move container to workspace $ws3
+bindsym $mod+Shift+4    move container to workspace $ws4
+bindsym $mod+Shift+5    move container to workspace $ws5
+bindsym $mod+Shift+6    move container to workspace $ws6
+bindsym $mod+Shift+7    move container to workspace $ws7
+bindsym $mod+Shift+8    move container to workspace $ws8
+bindsym $mod+Shift+9    move container to workspace $ws9
+bindsym $mod+Shift+0    move container to workspace $ws10
+
+for_window [class="Pinentry"] sticky enable
+for_window [class="sent"] border pixel 0px
+for_window [title="GIMP Startup"] move workspace $ws5
+for_window [class="Gimp"] move workspace $ws5
+for_window [window_role="GtkFileChooserDialog"] resize set 800 600
+for_window [window_role="GtkFileChooserDialog"] move position center
+for_window [title="Default - Wine desktop"] floating enable
+
+# Bindings to make the webcam float and stick.
+for_window [title="mpvfloat"] floating enable
+for_window [title="mpvfloat"] sticky enable
+for_window [title="mpvfloat"] border pixel 0
+no_focus   [title="mpvfloat"]
+
+# #---Function Buttons---# #
+bindsym $mod+F1                         exec groff -mom $HOME/.local/share/larbs/readme.mom -Tpdf | zathura -
+bindsym $mod+F2                         reload
+bindsym $mod+F3                         exec displayselect
+bindsym $mod+F4                         exec prompt 'Hibernate computer?' 'sudo -A zzz -Z' # bindsym
+# bindsym $mod+F5
+bindsym $mod+F6                         exec torwrap
+bindsym $mod+F7                         exec td-toggle
+bindsym $mod+F8                         exec mailsync
+bindsym $mod+F9                         exec wofimount
+bindsym $mod+F10                        exec wofiumount
+
+# #---Arrow Keys---# #
+bindsym $mod+Left                       focus left
+bindsym $mod+Ctrl+Left                  move workspace to output left
+bindsym $mod+Down                       focus down
+bindsym $mod+Ctrl+Down                  move workspace to output down
+bindsym $mod+Up                         focus up
+bindsym $mod+Ctrl+Up                    move workspace to output up
+bindsym $mod+Right                      focus right
+bindsym $mod+Ctrl+Right                 move workspace to output right
+bindsym $mod+Shift+Left                 move left
+bindsym $mod+Shift+Down                 move down
+bindsym $mod+Shift+Up                   move up
+bindsym $mod+Shift+Right                move right
+#exec_always --no-startup-id notify-send -i ~/.local/share/larbs/larbs.png 'Welcome to LARBS:' 'Press Super+F1 for the manual.' -t 10000
+
+# #---Media Keys---# #
+# Volume keys
+bindsym $mod+less                       exec playerctl previous
+bindsym $mod+Shift+less                 exec playerctl loop
+bindsym $mod+greater                    exec playerctl next
+
+# For screenshots and recording
+bindsym Print                           exec grim pic-full-"$(date '+%y%m%d-%H%M-%S').png"
+bindsym Shift+Print                     exec grimpick
+bindsym $mod+Print                      exec wofirecord
+bindsym $mod+Scroll_Lock                exec "killall screenkey || screenkey"
+bindsym $mod+Delete                     exec $stoprec
+bindsym XF86Launch1                     exec xset dpms force off
+
+# #---Extra XF86 Keys---# #
+bindsym XF86AudioMute                   exec ponymix toggle
+bindsym XF86AudioLowerVolume            exec ponymix decrease 5
+bindsym Shift+XF86AudioLowerVolume      exec ponymix decrease 10
+bindsym Control+XF86AudioLowerVolume    exec ponymix decrease 1
+bindsym XF86AudioRaiseVolume            exec ponymix increase 5
+bindsym Shift+XF86AudioRaiseVolume      exec ponymix increase 10
+bindsym Control+XF86AudioRaiseVolume    exec ponymix increase 1
+bindsym XF86PowerOff                    exec prompt "Shutdown computer?" "$shutdown"
+bindsym XF86Calculator                  exec swaymsg [app_id="dropcalc"] scratchpad show || exec $dropcalc, resize set 1800 1000
+bindsym XF86Explorer                    exec $term -e $FILE
+bindsym XF86WWW                         exec $BROWSER
+bindsym XF86ScreenSaver                 exec lockscreen
+bindsym XF86MyComputer                  exec $term -e $FILE
+bindsym XF86Eject                       exec wofiumount
+bindsym XF86AudioNext                   exec playerctl next
+bindsym XF86AudioPlay                   exec playerctl play-pause
+bindsym XF86AudioPrev                   exec playerctl previous
+bindsym XF86AudioStop                   exec playerctl play-pause
+bindsym XF86AudioRewind                 exec playerctl position 10-
+bindsym XF86AudioForward                exec playerctl position 10-
+bindsym XF86HomePage                    exec $BROWSER https://lukesmith.xyz
+bindsym XF86Reload                      restart
+bindsym XF86TouchpadToggle              exec toggletouchpad
+bindsym XF86TouchpadOn                  exec synclient TouchpadOff=0
+bindsym XF86TouchpadOff                 exec synclient TouchpadOff=1
+bindsym XF86Suspend                     exec lockscreen
+bindsym XF86Close                       kill
+bindsym XF86WebCam                      exec camtoggle
+bindsym XF86Mail                        exec $term -e neomutt && pkill -RTMIN+12 i3blocks
+bindsym XF86Messenger                   exec $term -e weechat
+bindsym XF86Search                      exec $BROWSER https://duckduckgo.com
+bindsym XF86Shop                        exec $BROWSER https://ebay.com
+bindsym XF86MonBrightnessDown           exec xbacklight -dec 15
+bindsym XF86MonBrightnessUp             exec xbacklight -inc 15
+bindsym XF86AudioMedia                  exec tidal-hifi
+bindsym XF86Display                     exec displayselect
+bindsym XF86Documents                   exec $term -e $FILE ~/Documents
+bindsym XF86WLAN                        exec $netrefresh
+exec_always notify-send -i ~/.scripts/pix/larbs.png 'Welcome to Llight config: Press Super+F1 for the manual.' -t 10000
+
+
+input 6127:24717:PixArt_Lenovo_USB_Optical_Mouse {
+    pointer_accel 0.0
+    dwt enabled
+    accel_profile adaptive
+}
+
+
+input 6700:15683:SEMICO_USB_Keyboard events disabled
+input 6700:15683:SEMICO_USB_Keyboard_Consumer_Control events disabled
+input 6700:15683:SEMICO_USB_Keyboard_System_Control events disabled
+
+input type:keyboard {
+   xkb_layout gb
+   xkb_variant ,nodeadkeys
+   xkb_options caps:swapescape
+}
+
+output DP-1 {
+    transform normal
+    background ~/.config/wall1.png stretch
+    pos 0,1750
+}
+
+output DP-2 {
+    transform 270
+    background ~/.config/wall2.png stretch
+    pos 1366,0
+}
+
+output HDMI-A-2 {
+    transform 90
+    background ~/.config/wall3.png stretch
+    pos 3526,0
+}
+
+# output DP-2 {
+#     transform 270
+#     background ~/.config/walle.png stretch
+#     pos 0,0
+# }
+
+# output HDMI-A-2 {
+#     background ~/.config/wall7.png stretch
+#     pos 2160,840
+# }
+
+
+exec waybar
+exec mako --default-timeout 5000
+# exec_always killall -9 actkbd && actkbd -D -d /dev/input/event7 -c /home/dark/.config/actkbd/gamemax.conf
